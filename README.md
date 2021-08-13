@@ -1,4 +1,4 @@
-# myTracker SDK
+# myTracker Flutter SDK
 
 ![Platforms][platforms-svg]
 [![License][license-svg]][license-link]
