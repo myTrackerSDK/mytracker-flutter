@@ -7,7 +7,7 @@ myTracker — free mobile analytics for iOS and Android platforms. Get connected
 
 ## Requirements
 
-Android 4.0
+Android 4.0  
 iOS 9.0, xCode 12.4 and above
 
 ## Installation
