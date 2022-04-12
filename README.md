@@ -71,7 +71,7 @@ MyTrackerParams trackerConfig = await MyTracker.getTrackerConfig();
 // ...
 
 // Инициализируем экземпляр
-await MyTracker.initTracker(SDK_KEY);
+await MyTracker.init(SDK_KEY);
 ```
 
 
