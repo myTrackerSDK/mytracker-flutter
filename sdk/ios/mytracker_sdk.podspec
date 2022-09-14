@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.static_framework    = true
 
   s.dependency          'Flutter'
-  s.ios.dependency      'myTrackerSDK', '3.0.2'
+  s.ios.dependency      'myTrackerSDK', '~> 3.0.7'
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
 end
