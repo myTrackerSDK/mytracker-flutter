@@ -1,5 +1,4 @@
 #import "MyTrackerSDKPlugin.h"
-#import "MyTrackerSDK.h"
 
 static NSString *apiChannelName = @"_mytracker_api_channel";
 
