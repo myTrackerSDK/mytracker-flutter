@@ -16,6 +16,8 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
     private var contextRef: WeakReference<Context>? = null
     private var activityRef: WeakReference<Activity>? = null
+    private var context: Context? = null
+    
 
     private var myTrackerChannel: MethodChannel? = null
 
@@ -25,6 +27,7 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         myTrackerChannel = methodChannel
 
         contextRef = WeakReference(flutterPluginBinding.applicationContext)
+        context = flutterPluginBinding.applicationContext
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -81,6 +84,8 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             GET_EMAILS -> MyTracker.getTrackerParams().emails?.toList()
             SET_PHONES -> MyTracker.getTrackerParams().phones = call.argument<List<String>>(VALUE)?.toTypedArray()
             GET_PHONES -> MyTracker.getTrackerParams().phones?.toList()
+            GET_INSTANCE_ID -> MyTracker.getInstanceId(context)
+            SET_ATTRIBUTION_LISTENER -> setAttributionListener()
 
             else -> {
                 result.notImplemented()
@@ -89,6 +94,13 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         }
 
         result.success(if (value is Unit) null else value)
+    }
+
+    private fun setAttributionListener() { 
+        MyTracker.setAttributionListener { myTrackerAttribution ->
+            val attribution = myTrackerAttribution.deeplink   
+            myTrackerChannel!!.invokeMethod("getAttribution", attribution)         
+        }
     }
 
     private fun init(call: MethodCall) {
@@ -164,5 +176,9 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
         const val GET_PHONES = "getPhones"
         const val SET_PHONES = "setPhones"
+
+        const val GET_INSTANCE_ID = "getInstanceId"
+
+        const val SET_ATTRIBUTION_LISTENER = "setAttributionListener"
     }
 }
