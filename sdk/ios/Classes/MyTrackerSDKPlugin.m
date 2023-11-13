@@ -26,6 +26,7 @@ static NSString *setRegionMethod = @"setRegion";
 static NSString *setTrackingEnvironmentEnabledMethod = @"setTrackingEnvironmentEnabled";
 static NSString *setTrackingLaunchEnabledMethod = @"setTrackingLaunchEnabled";
 static NSString *setTrackingLocationEnabledMethod = @"setTrackingLocationEnabled";
+static NSString *setAttributionListener = @"setAttributionListener";
 
 static NSString *getAgeMethod = @"getAge";
 static NSString *getGenderMethod = @"getGender";
@@ -45,6 +46,7 @@ static NSString *userIdParam = @"userId";
 static NSString *nameParam = @"name";
 static NSString *eventParamsParam = @"eventParams";
 static NSString *valueParam = @"value";
+
 
 @implementation MyTrackerSDKPlugin
 {
@@ -173,6 +175,13 @@ static NSString *valueParam = @"value";
 	{
 		MRMyTracker.trackerConfig.locationTrackingMode = ((NSNumber *) arguments[valueParam]).boolValue ? MRLocationTrackingModeCached
 		                                                                                                : MRLocationTrackingModeNone;
+	}
+	else if([setAttributionListener isEqualToString:method]){
+		MRMyTracker.setAttributionListener:(MRMyTrackerAttribution *)attribution
+		{
+			NSString *deeplink = attribution.deeplink;
+			apiChannel.invokeMethod("getAttribution", attribution);
+		}
 	}
 	else if ([getAgeMethod isEqualToString:method])
 	{
