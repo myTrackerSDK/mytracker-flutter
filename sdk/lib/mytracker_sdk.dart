@@ -4,9 +4,6 @@ import 'package:flutter/services.dart';
 
 const MethodChannel _apiChannel = MethodChannel('_mytracker_api_channel');
 
-/// Possible values of the region.
-enum MyTrackerRegion { RU, EU }
-
 /// Possible values of the user's gender.
 enum MyTrackerGender { UNSPECIFIED, UNKNOWN, MALE, FEMALE }
 
@@ -44,16 +41,33 @@ class MyTracker {
 
   /// Track user login event. Call the method right after user successfully
   /// authorized in the app and got an unique identifier. [userId] Unique
-  /// user identifier. Additional key-value [eventParams] params can be added.
+  /// user identifier. [vkConnectId] Optional identifier from VK Connect.
+  /// Additional key-value [eventParams] params can be added.
   /// Max length for key or value is 255 symbols.
-  static Future trackLoginEvent(String userId, Map<String, String>? eventParams) => _apiChannel.invokeMethod("trackLoginEvent", {"userId": userId, "eventParams": eventParams});
+  static Future trackLoginEvent(String userId, String? vkConnectId,
+          Map<String, String>? eventParams) =>
+      _apiChannel.invokeMethod("trackLoginEvent", {
+        "userId": userId,
+        "vkConnectId": vkConnectId,
+        "eventParams": eventParams
+      });
 
   /// Track user registration event. Call the method right after user
   /// successfully authorized in the app and got an unique identifier
-  /// [userId] Unique user identifier. Additional key-value [eventParams] params can be added.
+  /// [userId] Unique user identifier. [vkConnectId] Optional identifier from VK Connect.
+  /// Additional key-value [eventParams] params can be added.
   /// Max length for key or value is 255 symbols.
-  static Future trackRegistrationEvent(String userId, Map<String, String>? eventParams) =>
-      _apiChannel.invokeMethod("trackRegistrationEvent", {"userId": userId, "eventParams": eventParams});
+  static Future trackRegistrationEvent(String userId, String? vkConnectId,
+          Map<String, String>? eventParams) =>
+      _apiChannel.invokeMethod("trackRegistrationEvent", {
+        "userId": userId,
+        "vkConnectId": vkConnectId,
+        "eventParams": eventParams
+      });
+
+  /// Return current instance id of tracker.
+  static Future<String?> getInstanceId() =>
+      _apiChannel.invokeMethod("getInstanceId").then((value) => value);
 
   MyTracker._internal();
 }
@@ -115,20 +129,6 @@ class MyTrackerConfig {
   ///
   /// NOTE: it's mandatory to call this method before [MyTracker.init(id)]
   Future<MyTrackerConfig> setProxyHost(String? proxyHost) => _apiChannel.invokeMethod("setProxyHost", {"value": proxyHost}).then((value) => this);
-
-  /// Sets the region. [region] The value switch the proxy host to predefined
-  /// values or reset it to default value.
-  ///
-  /// Possible values are defined in [MyTrackerRegion]
-  ///
-  /// NOTE: it's mandatory to call this method before [MyTracker.init(id)]
-  ///
-  /// For example, setting region to EU
-  /// ```dart
-  /// MyTracker.trackerConfig.setRegion(MyTrackerRegion.EU)
-  /// MyTracker.init(id)
-  /// ```
-  Future<MyTrackerConfig> setRegion(MyTrackerRegion region) => _apiChannel.invokeMethod("setRegion", {"value": region.index}).then((value) => this);
 
   /// Returns tracking environment state. Enabled state means that
   /// information about Wi-Fi and mobile networks will be collected.

@@ -1,5 +1,5 @@
 #import "MyTrackerSDKPlugin.h"
-#import "MyTrackerSDK.h"
+#import <MyTrackerSDK/MyTrackerSDK.h>
 
 static NSString *apiChannelName = @"_mytracker_api_channel";
 
@@ -8,6 +8,7 @@ static NSString *trackEventMethod = @"trackEvent";
 static NSString *trackLoginEventMethod = @"trackLoginEvent";
 static NSString *trackRegistrationEventMethod = @"trackRegistrationEvent";
 static NSString *flushMethod = @"flush";
+static NSString *getInstanceIdMethod = @"getInstanceId";
 static NSString *isDebugModeMethod = @"isDebugMode";
 static NSString *setDebugModeMethod = @"setDebugMode";
 static NSString *getIdMethod = @"getId";
@@ -22,7 +23,6 @@ static NSString *setBufferingPeriodMethod = @"setBufferingPeriod";
 static NSString *setForcingPeriodMethod = @"setForcingPeriod";
 static NSString *setLaunchTimeoutMethod = @"setLaunchTimeout";
 static NSString *setProxyHostMethod = @"setProxyHost";
-static NSString *setRegionMethod = @"setRegion";
 static NSString *setTrackingEnvironmentEnabledMethod = @"setTrackingEnvironmentEnabled";
 static NSString *setTrackingLaunchEnabledMethod = @"setTrackingLaunchEnabled";
 static NSString *setTrackingLocationEnabledMethod = @"setTrackingLocationEnabled";
@@ -42,6 +42,7 @@ static NSString *setPhoneMethod = @"setPhones";
 
 static NSString *idParam = @"id";
 static NSString *userIdParam = @"userId";
+static NSString *vkConnectIdParam = @"vkConnectId";
 static NSString *nameParam = @"name";
 static NSString *eventParamsParam = @"eventParams";
 static NSString *valueParam = @"value";
@@ -78,17 +79,21 @@ static NSString *valueParam = @"value";
 	{
 		[MRMyTracker flush];
 	}
+	else if ([getInstanceIdMethod isEqualToString:method])
+	{
+		returnValue = [MRMyTracker instanceId];
+	}
 	else if ([trackEventMethod isEqualToString:method])
 	{
 		[MRMyTracker trackEventWithName:arguments[nameParam] eventParams:[self getEventParams:arguments]];
 	}
 	else if ([trackLoginEventMethod isEqualToString:method])
 	{
-		[MRMyTracker trackLoginEvent:arguments[userIdParam] withVkConnectId:nil params:[self getEventParams:arguments]];
+		[MRMyTracker trackLoginEvent:arguments[userIdParam] withVkConnectId:arguments[vkConnectIdParam] params:[self getEventParams:arguments]];
 	}
 	else if ([trackRegistrationEventMethod isEqualToString:method])
 	{
-		[MRMyTracker trackRegistrationEvent:arguments[userIdParam] withVkConnectId:nil params:[self getEventParams:arguments]];
+		[MRMyTracker trackRegistrationEvent:arguments[userIdParam] withVkConnectId:arguments[vkConnectIdParam] params:[self getEventParams:arguments]];
 	}
 	else if ([isDebugModeMethod isEqualToString:method])
 	{
@@ -141,25 +146,6 @@ static NSString *valueParam = @"value";
 	else if ([setProxyHostMethod isEqualToString:method])
 	{
 		MRMyTracker.trackerConfig.proxyHost = [self checkedCastWithClass:NSString.class value:arguments[valueParam]];
-	}
-	else if ([setRegionMethod isEqualToString:method])
-	{
-		NSInteger value = ((NSNumber *) arguments[valueParam]).integerValue;
-		MRRegion region;
-		switch (value)
-		{
-			case 0:
-				region = MRRegionRu;
-				break;
-			case 1:
-				region = MRRegionEu;
-				break;
-			default:
-				region = MRRegionNotSet;
-				break;
-		}
-
-		MRMyTracker.trackerConfig.region = region;
 	}
 	else if ([setTrackingEnvironmentEnabledMethod isEqualToString:method])
 	{

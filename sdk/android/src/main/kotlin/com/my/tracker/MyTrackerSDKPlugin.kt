@@ -49,9 +49,10 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         val value: Any? = when (call.method) {
             INIT_METHOD -> init(call)
             FLUSH_METHOD -> MyTracker.flush()
+			GET_INSTANCE_ID -> contextRef?.get()?.let { MyTracker.getInstanceId(it) }
             TRACK_EVENT_METHOD -> MyTracker.trackEvent(call.argument(TRACK_EVENT_NAME)!!, call.argument(TRACK_EVENT_PARAMS))
-            TRACK_LOGIN_METHOD -> MyTracker.trackLoginEvent(call.argument(TRACK_USERID)!!, null, call.argument(TRACK_EVENT_PARAMS))
-            TRACK_REGISTRATION_METHOD -> MyTracker.trackRegistrationEvent(call.argument(TRACK_USERID)!!, null, call.argument(TRACK_EVENT_PARAMS))
+            TRACK_LOGIN_METHOD -> MyTracker.trackLoginEvent(call.argument(TRACK_USERID)!!, call.argument(TRACK_VKCONNECTID), call.argument(TRACK_EVENT_PARAMS))
+            TRACK_REGISTRATION_METHOD -> MyTracker.trackRegistrationEvent(call.argument(TRACK_USERID)!!, call.argument(TRACK_VKCONNECTID), call.argument(TRACK_EVENT_PARAMS))
             IS_DEBUG_MODE_METHOD -> MyTracker.isDebugMode()
             SET_DEBUG_MODE_METHOD -> MyTracker.setDebugMode(call.argument(VALUE)!!)
             GET_ID_METHOD -> MyTracker.getTrackerConfig().id
@@ -62,7 +63,6 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             GET_LAUNCH_TIMEOUT_METHOD -> MyTracker.getTrackerConfig().launchTimeout
             SET_LAUNCH_TIMEOUT_METHOD -> MyTracker.getTrackerConfig().launchTimeout = call.argument(VALUE)!!
             SET_PROXY_HOST_METHOD -> MyTracker.getTrackerConfig().setProxyHost(call.argument(VALUE)).let { }
-            SET_REGION_METHOD -> MyTracker.getTrackerConfig().setRegion(call.argument(VALUE)!!).let { }
             IS_TRACKING_ENVIRONMENT_ENABLED -> MyTracker.getTrackerConfig().isTrackingEnvironmentEnabled
             SET_TRACKING_ENVIRONMENT_ENABLED -> MyTracker.getTrackerConfig().isTrackingEnvironmentEnabled = call.argument(VALUE)!!
             IS_TRACKING_LAUNCH_ENABLED -> MyTracker.getTrackerConfig().isTrackingLaunchEnabled
@@ -105,12 +105,15 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
         const val FLUSH_METHOD = "flush"
 
+		const val GET_INSTANCE_ID = "getInstanceId"
+
         const val TRACK_EVENT_METHOD = "trackEvent"
         const val TRACK_EVENT_NAME = "name"
         const val TRACK_EVENT_PARAMS = "eventParams"
 
         const val TRACK_LOGIN_METHOD = "trackLoginEvent"
         const val TRACK_USERID = "userId"
+		const val TRACK_VKCONNECTID = "vkConnectId"
 
         const val TRACK_REGISTRATION_METHOD = "trackRegistrationEvent"
 
@@ -135,8 +138,6 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         const val SET_LAUNCH_TIMEOUT_METHOD = "setLaunchTimeout"
 
         const val SET_PROXY_HOST_METHOD = "setProxyHost"
-
-        const val SET_REGION_METHOD = "setRegion"
 
         const val SET_TRACKING_ENVIRONMENT_ENABLED = "setTrackingEnvironmentEnabled"
         const val IS_TRACKING_ENVIRONMENT_ENABLED = "isTrackingEnvironmentEnabled"

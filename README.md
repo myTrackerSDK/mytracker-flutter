@@ -18,17 +18,16 @@ myTracker — Мультиплатформенная система аналит
 ### Минимальные требования
 
 #### Android
-* Android api level 14 (Android 4.0)
+* Android api level 21 (Android 5.0)
 * Разрешение `android.permission.INTERNET`
 * Разрешение `android.permission.ACCESS_NETWORK_STATE`
 
-Обязательные зависимости, которые будет добавлены автоматически:
+Обязательные зависимости, которые будут добавлены автоматически:
 * [Google Play Services](https://developers.google.com/android/guides/setup) (модуль com.google.android.gms:play-services-ads-identifier)
 * [Google Play Install Referrer](https://developer.android.com/google/play/installreferrer) (модуль com.android.installreferrer:installreferrer)
 
 #### iOS
-* Минимальная поддерживаемая версия iOS - 9.0
-* xCode версия 12.4 или выше
+* Минимальная поддерживаемая версия iOS - 12.4
 
 В случае, если необходимо получение информации об IDFA/IDFV на iOS 14+, то необходимо получение разрешения от пользователя.  
 Для решения, возможно использовать [App Tracking Transparency Plugin](https://pub.dev/packages/app_tracking_transparency). Или реализовать запрос разрешений самостоятельно.
@@ -45,6 +44,25 @@ myTracker — Мультиплатформенная система аналит
 [OAID](https://developer.huawei.com/consumer/en/service/hms/catalog/pps_document.html?page=hmssdk_huaweipps_introduction).
 
 ## Подключение
+
+### pub.dev
+
+Используйте flutter для добавления зависимости `mytracker_sdk` в файл `pubspec.yaml`:
+
+```bash
+flutter pub add mytracker_sdk
+```
+
+или добавьте зависимость вручную в файл `pubspec.yaml`:
+
+```yaml
+dependencies:
+  ...
+  mytracker_sdk:
+  ...
+```
+
+### Вручную
 
 Скачайте SDK, добавьте его в ваш проект по некоторому пути `PATH_TO_SDK` и укажите его в качестве зависимости в `pubspec.yaml` вашего приложения:
 ```yaml
@@ -168,18 +186,20 @@ Future setDebugMode(boolean debugMode)
 Доступны следующие методы для трекинга различных типов событий:
 
 ```dart 
-Future trackLoginEvent(String userId, Map<String, String>? eventParams)
+Future trackLoginEvent(String userId, String? vkConnectId, Map<String, String>? eventParams)
 ```
 Событие логина.  
-Обязательный параметр userId задаёт идентификатор пользователя.  
+Обязательный параметр userId задаёт идентификатор пользователя. 
+Дополнительный параметр vkConnectId задаёт VK идентификатор пользователя. 
 Дополнительный параметр eventParams позволяет задать произвольные параметры ключ-значение для события.  
 Максимальная длина ключа и значения - 255 символов.
 
 ```dart  
-Future trackRegistrationEvent(String userId, Map<String, String>? eventParams)
+Future trackRegistrationEvent(String userId, String? vkConnectId, Map<String, String>? eventParams)
 ```
 Событие регистрации.  
 Обязательный параметр userId задаёт идентификатор пользователя.  
+Дополнительный параметр vkConnectId задаёт VK идентификатор пользователя.
 Дополнительный параметр eventParams позволяет задать произвольные параметры ключ-значение для события.  
 Максимальная длина ключа и значения - 255 символов.
 
