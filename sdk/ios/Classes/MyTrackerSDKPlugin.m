@@ -7,11 +7,15 @@ static NSString *initMethod = @"init";
 static NSString *trackEventMethod = @"trackEvent";
 static NSString *trackLoginEventMethod = @"trackLoginEvent";
 static NSString *trackRegistrationEventMethod = @"trackRegistrationEvent";
+static NSString *trackLevelEventMethod = @"trackLevelEvent";
+static NSString *trackInviteEventMethod = @"trackInviteEvent";
 static NSString *flushMethod = @"flush";
 static NSString *getInstanceIdMethod = @"getInstanceId";
 static NSString *isDebugModeMethod = @"isDebugMode";
 static NSString *setDebugModeMethod = @"setDebugMode";
 static NSString *getIdMethod = @"getId";
+static NSString *setAttributionDelegateMethod = @"setAttributionListener";
+static NSString *handleDeeplinkMethod = @"handleDeeplink";
 
 static NSString *getBufferingPeriodMethod = @"getBufferingPeriod";
 static NSString *getForcingPeriodMethod = @"getForcingPeriod";
@@ -39,13 +43,24 @@ static NSString *setLangMethod = @"setLang";
 static NSString *setCustomUserIdMethod = @"setCustomUserIds";
 static NSString *setEmailMethod = @"setEmails";
 static NSString *setPhoneMethod = @"setPhones";
+static NSString *setCustomParamMethod = @"setCustomParam";
+static NSString *getCustomParamMethod = @"getCustomParam";
 
 static NSString *idParam = @"id";
 static NSString *userIdParam = @"userId";
 static NSString *vkConnectIdParam = @"vkConnectId";
 static NSString *nameParam = @"name";
 static NSString *eventParamsParam = @"eventParams";
+static NSString *keyParam = @"key";
 static NSString *valueParam = @"value";
+static NSString *levelParam = @"level";
+static NSString *uriParam = @"uri";
+
+static NSString *onReceiveAttributionCallback = @"onReceiveAttribution";
+
+@interface MyTrackerSDKPlugin () <MRMyTrackerAttributionDelegate>
+
+@end
 
 @implementation MyTrackerSDKPlugin
 {
@@ -94,6 +109,14 @@ static NSString *valueParam = @"value";
 	else if ([trackRegistrationEventMethod isEqualToString:method])
 	{
 		[MRMyTracker trackRegistrationEvent:arguments[userIdParam] withVkConnectId:arguments[vkConnectIdParam] params:[self getEventParams:arguments]];
+	}
+	else if ([trackLevelEventMethod isEqualToString:method])
+	{
+		[MRMyTracker trackLevelAchievedWithLevel:arguments[levelParam] eventParams:[self getEventParams:arguments]];
+	}
+	else if ([trackInviteEventMethod isEqualToString:method])
+	{
+		[MRMyTracker trackInviteEventWithParams:[self getEventParams:arguments]];
 	}
 	else if ([isDebugModeMethod isEqualToString:method])
 	{
@@ -208,6 +231,34 @@ static NSString *valueParam = @"value";
 	{
 		MRMyTracker.trackerParams.phones = ((NSArray *) arguments[valueParam]).copy;
 	}
+	else if ([setCustomParamMethod isEqualToString:method])
+	{
+		// Not available for iOS
+		NSLog(@"MyTrackerSDKPlugin: %@ method is not available for iOS", setCustomParamMethod);
+	}
+	else if ([getCustomParamMethod isEqualToString:method])
+	{
+		// Not available for iOS
+		NSLog(@"MyTrackerSDKPlugin: %@ method is not available for iOS", getCustomParamMethod);
+	}
+	else if ([setAttributionDelegateMethod isEqualToString:method])
+	{
+		[MRMyTracker setAttributionDelegate:self];
+	}
+	else if ([handleDeeplinkMethod isEqualToString:method])
+	{
+		NSString *urlString = arguments[uriParam];
+		if (urlString == nil)
+		{
+			return;
+		}
+		NSURL *url = [NSURL URLWithString:urlString];
+		if (url == nil)
+		{
+			return;
+		}
+		[MRMyTracker handleOpenURL:url options:nil];
+	}
 	else
 	{
 		returnValue = FlutterMethodNotImplemented;
@@ -239,6 +290,11 @@ static NSString *valueParam = @"value";
 - (NSDictionary *)getEventParams:(id)arguments
 {
 	return [self checkedCastWithClass:NSDictionary.class value:arguments[eventParamsParam]];
+}
+
+- (void)didReceiveAttribution:(nonnull MRMyTrackerAttribution *)attribution 
+{
+	[_apiChannel invokeMethod:onReceiveAttributionCallback arguments:attribution.deeplink];
 }
 
 @end

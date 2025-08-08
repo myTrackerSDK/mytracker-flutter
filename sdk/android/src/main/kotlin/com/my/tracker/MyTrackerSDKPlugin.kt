@@ -3,6 +3,9 @@ package com.my.tracker
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -53,6 +56,8 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             TRACK_EVENT_METHOD -> MyTracker.trackEvent(call.argument(TRACK_EVENT_NAME)!!, call.argument(TRACK_EVENT_PARAMS))
             TRACK_LOGIN_METHOD -> MyTracker.trackLoginEvent(call.argument(TRACK_USERID)!!, call.argument(TRACK_VKCONNECTID), call.argument(TRACK_EVENT_PARAMS))
             TRACK_REGISTRATION_METHOD -> MyTracker.trackRegistrationEvent(call.argument(TRACK_USERID)!!, call.argument(TRACK_VKCONNECTID), call.argument(TRACK_EVENT_PARAMS))
+            TRACK_LEVEL_EVENT -> MyTracker.trackLevelEvent(call.argument(TRACK_LEVEL)!!, call.argument(TRACK_EVENT_PARAMS))
+            TRACK_INVITE_EVENT -> MyTracker.trackInviteEvent(call.argument(TRACK_EVENT_PARAMS))
             IS_DEBUG_MODE_METHOD -> MyTracker.isDebugMode()
             SET_DEBUG_MODE_METHOD -> MyTracker.setDebugMode(call.argument(VALUE)!!)
             GET_ID_METHOD -> MyTracker.getTrackerConfig().id
@@ -81,6 +86,17 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             GET_EMAILS -> MyTracker.getTrackerParams().emails?.toList()
             SET_PHONES -> MyTracker.getTrackerParams().phones = call.argument<List<String>>(VALUE)?.toTypedArray()
             GET_PHONES -> MyTracker.getTrackerParams().phones?.toList()
+            SET_CUSTOM_PARAM -> MyTracker.getTrackerParams().setCustomParam(call.argument<String>(KEY)!!, call.argument<String>(VALUE))
+            GET_CUSTOM_PARAM -> MyTracker.getTrackerParams().getCustomParam(call.argument<String>(KEY)!!)
+            HANDLE_DEEPLINK -> {
+                val uriString = call.argument<String>(UriKey) ?: return
+                MyTracker.handleDeeplink(
+                    Intent().apply {
+                        data = Uri.parse(uriString)
+                    }
+                )
+            }
+            SET_ATTRIBUTION_LISTENER -> MyTracker.setAttributionListener(MyTrackerAttributionListener(myTrackerChannel))
 
             else -> {
                 result.notImplemented()
@@ -95,6 +111,18 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         contextRef?.get()?.also { MyTracker.initTracker(call.argument(INIT_PARAM_ID)!!, it as Application) }
 
         activityRef?.get()?.also { MyTracker.trackLaunchManually(it) }
+    }
+
+    class MyTrackerAttributionListener(channel: MethodChannel?) : MyTracker.AttributionListener {
+
+        private var channelRef: WeakReference<MethodChannel> = WeakReference(channel)
+
+        override fun onReceiveAttribution(attribution: MyTrackerAttribution)
+        {
+            val deeplink = attribution.deeplink
+
+            channelRef.get()?.invokeMethod(ON_RECEIVE_ATTRIBUTION_METHOD, deeplink)
+        }
     }
 
     companion object {
@@ -117,13 +145,26 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
         const val TRACK_REGISTRATION_METHOD = "trackRegistrationEvent"
 
+        const val TRACK_INVITE_EVENT = "trackInviteEvent"
+
+        const val TRACK_LEVEL_EVENT = "trackLevelEvent"
+        const val TRACK_LEVEL = "level"
+
         const val IS_DEBUG_MODE_METHOD = "isDebugMode"
 
         const val SET_DEBUG_MODE_METHOD = "setDebugMode"
 
+        const val HANDLE_DEEPLINK = "handleDeeplink"
+
+        const val SET_ATTRIBUTION_LISTENER = "setAttributionListener"
+
         const val GET_ID_METHOD = "getId"
 
+        const val KEY = "key"
+
         const val VALUE = "value"
+
+        const val UriKey = "uri"
 
         const val GET_BUFFERING_PERIOD_METHOD = "getBufferingPeriod"
 
@@ -160,10 +201,15 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         const val GET_CUSTOM_USER_IDS = "getCustomUserIds"
         const val SET_CUSTOM_USER_IDS = "setCustomUserIds"
 
+        const val SET_CUSTOM_PARAM = "setCustomParam"
+        const val GET_CUSTOM_PARAM = "getCustomParam"
+
         const val GET_EMAILS = "getEmails"
         const val SET_EMAILS = "setEmails"
 
         const val GET_PHONES = "getPhones"
         const val SET_PHONES = "setPhones"
+
+        const val ON_RECEIVE_ATTRIBUTION_METHOD = "onReceiveAttribution"
     }
 }
