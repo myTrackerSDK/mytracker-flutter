@@ -1,38 +1,50 @@
-group 'com.my.tracker.flutter'
+group = "com.my.tracker.flutter"
+version = "1.0-SNAPSHOT"
 version '3.2.0'
 
 buildscript {
-    ext.kotlin_version = '1.5.21'
+    ext.kotlin_version = "2.1.0"
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath("com.android.tools.build:gradle:8.12.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
 
-rootProject.allprojects {
+allprojects {
     repositories {
         google()
         mavenCentral()
     }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
 
 android {
     namespace = "com.my.tracker.flutter"
-    compileSdkVersion 34
+
+    compileSdk = 36
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11
+    }
 
     sourceSets {
-        main.java.srcDirs += 'src/main'
+        main.java.srcDirs += "src/main/kotlin"
     }
+
     defaultConfig {
-        minSdkVersion 21
+        minSdk = 21
     }
 }
 

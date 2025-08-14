@@ -5,24 +5,24 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
 import java.lang.ref.WeakReference
 
-class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
+class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
+{
 
     private var contextRef: WeakReference<Context>? = null
     private var activityRef: WeakReference<Activity>? = null
 
     private var myTrackerChannel: MethodChannel? = null
 
-    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding)
+    {
         val methodChannel = MethodChannel(flutterPluginBinding.binaryMessenger, CHANNEL_NAME)
         methodChannel.setMethodCallHandler(this)
         myTrackerChannel = methodChannel
@@ -30,13 +30,15 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         contextRef = WeakReference(flutterPluginBinding.applicationContext)
     }
 
-    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding)
+    {
         myTrackerChannel?.setMethodCallHandler(null)
         myTrackerChannel = null
         contextRef = null
     }
 
-    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+    override fun onAttachedToActivity(binding: ActivityPluginBinding)
+    {
         activityRef = WeakReference(binding.activity)
     }
 
@@ -44,15 +46,18 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) = Unit
 
-    override fun onDetachedFromActivity() {
+    override fun onDetachedFromActivity()
+    {
         activityRef = null
     }
 
-    override fun onMethodCall(call: MethodCall, result: Result) {
-        val value: Any? = when (call.method) {
+    override fun onMethodCall(call: MethodCall, result: Result)
+    {
+        val value: Any? = when (call.method)
+        {
             INIT_METHOD -> init(call)
             FLUSH_METHOD -> MyTracker.flush()
-			GET_INSTANCE_ID -> contextRef?.get()?.let { MyTracker.getInstanceId(it) }
+            GET_INSTANCE_ID -> contextRef?.get()?.let { MyTracker.getInstanceId(it) }
             TRACK_EVENT_METHOD -> MyTracker.trackEvent(call.argument(TRACK_EVENT_NAME)!!, call.argument(TRACK_EVENT_PARAMS))
             TRACK_LOGIN_METHOD -> MyTracker.trackLoginEvent(call.argument(TRACK_USERID)!!, call.argument(TRACK_VKCONNECTID), call.argument(TRACK_EVENT_PARAMS))
             TRACK_REGISTRATION_METHOD -> MyTracker.trackRegistrationEvent(call.argument(TRACK_USERID)!!, call.argument(TRACK_VKCONNECTID), call.argument(TRACK_EVENT_PARAMS))
@@ -88,7 +93,8 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             GET_PHONES -> MyTracker.getTrackerParams().phones?.toList()
             SET_CUSTOM_PARAM -> MyTracker.getTrackerParams().setCustomParam(call.argument<String>(KEY)!!, call.argument<String>(VALUE))
             GET_CUSTOM_PARAM -> MyTracker.getTrackerParams().getCustomParam(call.argument<String>(KEY)!!)
-            HANDLE_DEEPLINK -> {
+            HANDLE_DEEPLINK ->
+            {
                 val uriString = call.argument<String>(UriKey) ?: return
                 MyTracker.handleDeeplink(
                     Intent().apply {
@@ -96,9 +102,11 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
                     }
                 )
             }
+
             SET_ATTRIBUTION_LISTENER -> MyTracker.setAttributionListener(MyTrackerAttributionListener(myTrackerChannel))
 
-            else -> {
+            else ->
+            {
                 result.notImplemented()
                 return
             }
@@ -107,13 +115,15 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         result.success(if (value is Unit) null else value)
     }
 
-    private fun init(call: MethodCall) {
+    private fun init(call: MethodCall)
+    {
         contextRef?.get()?.also { MyTracker.initTracker(call.argument(INIT_PARAM_ID)!!, it as Application) }
 
         activityRef?.get()?.also { MyTracker.trackLaunchManually(it) }
     }
 
-    class MyTrackerAttributionListener(channel: MethodChannel?) : MyTracker.AttributionListener {
+    class MyTrackerAttributionListener(channel: MethodChannel?) : MyTracker.AttributionListener
+    {
 
         private var channelRef: WeakReference<MethodChannel> = WeakReference(channel)
 
@@ -125,7 +135,8 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         }
     }
 
-    companion object {
+    companion object
+    {
         const val CHANNEL_NAME = "_mytracker_api_channel"
 
         const val INIT_METHOD = "init"
@@ -133,7 +144,7 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
         const val FLUSH_METHOD = "flush"
 
-		const val GET_INSTANCE_ID = "getInstanceId"
+        const val GET_INSTANCE_ID = "getInstanceId"
 
         const val TRACK_EVENT_METHOD = "trackEvent"
         const val TRACK_EVENT_NAME = "name"
@@ -141,7 +152,7 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
         const val TRACK_LOGIN_METHOD = "trackLoginEvent"
         const val TRACK_USERID = "userId"
-		const val TRACK_VKCONNECTID = "vkConnectId"
+        const val TRACK_VKCONNECTID = "vkConnectId"
 
         const val TRACK_REGISTRATION_METHOD = "trackRegistrationEvent"
 
