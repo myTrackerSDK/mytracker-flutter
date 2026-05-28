@@ -52,7 +52,7 @@ class MyTrackerSDKPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
         activityRef = null
     }
 
-    override fun onMethodCall(call: MethodCall, result: Result)
+    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result)
     {
         val value: Any? = when (call.method)
         {
