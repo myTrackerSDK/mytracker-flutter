@@ -12,8 +12,8 @@ Pod::Spec.new do |s|
   s.source              = { :path => '.' }
   s.ios.deployment_target = '12.4'
 
-  s.source_files        = 'Classes/**/*'
-  s.public_header_files = 'Classes/**/*.h'
+  s.source_files        = 'mytracker_sdk/Sources/mytracker_sdk/**/*.{h,m}'
+  s.public_header_files = 'mytracker_sdk/Sources/mytracker_sdk/include/**/*.h'
   s.static_framework    = true
 
   s.dependency          'Flutter'
